@@ -1,0 +1,39 @@
+AC_INIT(FixInst, 0.0.2)
+AC_CONFIG_SRCDIR(src/main.cc)
+
+AM_INIT_AUTOMAKE
+AM_CONFIG_HEADER(config.h)
+
+AC_PROG_CXX
+AC_PROG_CPP
+AC_PROG_LIBTOOL
+
+LDFLAGS="-s $LDFLAGS"
+
+CPPFLAGS="$CFLAGS `pkg-config libxml-2.0 --cflags` `pkg-config gtkmm-2.0 --cflags`"
+
+AC_CHECK_HEADERS([libxml/parser.h])
+AC_CHECK_HEADERS([ncurses.h])
+
+TLIBS=$LIBS
+
+dnl Search for static library 'libncurses.a':
+AC_PATH_PROG(LIBNCURS,libncurses.a,-lncurses,/lib:/usr/lib:/usr/X11R6/lib:/usr/local/lib:/usr/local/lib/X11)
+dnl Add static ncurses lib if libncurses.a found otherwise dynamic ncurses:
+AC_CHECK_LIB(ncurses, main,TLIBS="$LIBNCURS $TLIBS",,$TLIBS)
+
+dnl Search for static library 'libz.a':
+AC_PATH_PROG(LIBZ,libz.a,-lz,/lib:/usr/lib:/usr/X11R6/lib:/usr/local/lib:/usr/local/lib/X11)
+AC_CHECK_LIB(z, main,TLIBS="$LIBZ $TLIBS",,$TLIBS)
+
+dnl Search for static library 'libxml2.a':
+AC_PATH_PROG(LIBXML,libxml2.a,-lxml2,/lib:/usr/lib:/usr/X11R6/lib:/usr/local/lib:/usr/local/lib/X11)
+AC_CHECK_LIB(xml2, main,TLIBS="$LIBXML $TLIBS",,$TLIBS)
+
+LIBS=$TLIBS
+
+AC_CHECK_LIB(pthread, main)
+
+LDFLAGS="$LDFLAGS `pkg-config gtkmm-2.0 --libs`"
+
+AC_OUTPUT(Makefile src/Makefile)
