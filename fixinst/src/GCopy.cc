@@ -14,6 +14,9 @@ using namespace std;
 using namespace Gtk;
 using namespace Glib;
 
+#define WIDTH 500
+#define HEIGHT 400
+
 // Class GCopy
 GCopy::GCopy(XML *xml, string working_dir) {
 
@@ -31,7 +34,7 @@ GCopy::GCopy(XML *xml, string working_dir) {
   work_dir = working_dir;
 
   set_border_width(10);
-  set_default_size(400,300);
+  set_default_size(WIDTH, HEIGHT);
   // set_resizable(false);
   set_title((string)PACKAGE_STRING + " - Install");
 
