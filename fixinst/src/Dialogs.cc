@@ -12,11 +12,19 @@
 #include <gtkmm/image.h>
 #include <gtkmm/messagedialog.h>
 
+#include <glibmm/ustring.h>
+#include <glibmm/convert.h>
+
 #include <fstream>
+#include <iostream>
 
 using namespace Gtk;
 using namespace Glib;
 using namespace std;
+
+// Size of Dialogs
+#define WIDTH 500
+#define HEIGHT 400
 
 // Class Welcome
 Welcome::Welcome(XML *xml, string working_dir) {
@@ -29,7 +37,7 @@ Welcome::Welcome(XML *xml, string working_dir) {
   VBox          *vbox         = manage(new VBox(true));
 
   set_border_width(10);
-  set_default_size(400,300);
+  set_default_size(WIDTH, HEIGHT);
   // set_resizable(false);
   set_title((string)PACKAGE_STRING);
 
@@ -69,7 +77,7 @@ ShowTarget::ShowTarget(XML *xml, string working_dir) {
   VBox          *vbox         = manage(new VBox(true));
 
   set_border_width(10);
-  set_default_size(400,300);
+  set_default_size(WIDTH, HEIGHT);
   // set_resizable(false);
   set_title((string)PACKAGE_STRING + " - Select target directory");
 
@@ -120,7 +128,7 @@ ShowLicense::ShowLicense(XML *xml, string working_dir) {
   RefPtr<TextBuffer> tbuf;
 
   set_border_width(10);
-  set_default_size(400,300);
+  set_default_size(WIDTH, HEIGHT);
   // set_resizable(false);
   set_title((string)PACKAGE_STRING + " - License");
 
@@ -133,21 +141,31 @@ ShowLicense::ShowLicense(XML *xml, string working_dir) {
   // Fill text buffer
   tbuf = TextBuffer::create();
  	ifstream in((working_dir + xml->GetLicense()).c_str());
-  if (!in)
+  if (!in) {
     tbuf->set_text((string)("Could not find " + working_dir +
                             xml->GetLicense()).c_str());
+  } else {
+    string l_text; // The text of the license
+    string temp;
+    while (!in.eof()) {
+      getline(in, temp, '\n');
+      l_text = l_text + temp + "\n";
+    }
+    tbuf->set_text(locale_to_utf8(l_text));
+  }
 
   // Text
   tview->set_buffer(tbuf);
   tview->set_editable(false);
   tview->set_cursor_visible(false);
+  tview->set_wrap_mode(WRAP_WORD);
   swin->add(*tview);
   swin->set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
   swin->set_shadow_type(SHADOW_IN);
 
   // Add components to vbox
   get_vbox()->pack_start(*bild, PACK_SHRINK);
-  get_vbox()->pack_end(*swin, PACK_SHRINK);
+  get_vbox()->pack_end(*swin, PACK_EXPAND_WIDGET);
 
   show_all_children();
   set_focus_child(*okButton);
@@ -167,7 +185,7 @@ ShowReadme::ShowReadme(XML *xml, string working_dir) {
   RefPtr<TextBuffer> tbuf;
 
   set_border_width(10);
-  set_default_size(400,300);
+  set_default_size(WIDTH, HEIGHT);
   // set_resizable(false);
   set_title((string)PACKAGE_STRING + " - Readme");
 
@@ -180,21 +198,31 @@ ShowReadme::ShowReadme(XML *xml, string working_dir) {
   // Fill text buffer
   tbuf = TextBuffer::create();
  	ifstream in((working_dir + xml->GetReadme()).c_str());
-  if (!in)
+  if (!in) {
     tbuf->set_text((string)("Could not find " + working_dir +
                             xml->GetReadme()).c_str());
+  } else {
+    string l_text; // The text of the README
+    string temp;
+    while (!in.eof()) {
+      getline(in, temp, '\n');
+      l_text = l_text + temp + "\n";
+    }
+    tbuf->set_text(locale_to_utf8(l_text));
+  }
 
   // Text
   tview->set_buffer(tbuf);
   tview->set_editable(false);
   tview->set_cursor_visible(false);
+  tview->set_wrap_mode(WRAP_WORD);
   swin->add(*tview);
   swin->set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
   swin->set_shadow_type(SHADOW_IN);
 
   // Add components to vbox
   get_vbox()->pack_start(*bild, PACK_SHRINK);
-  get_vbox()->pack_end(*swin, PACK_SHRINK);
+  get_vbox()->pack_end(*swin, PACK_EXPAND_WIDGET);
 
   show_all_children();
   set_focus_child(*okButton);
