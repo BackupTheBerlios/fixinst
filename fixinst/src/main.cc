@@ -7,6 +7,7 @@
 #include "Dialogs.h"
 #include "File.h"
 #include "GCopy.h"
+#include "User.h"
 #include "XML.h"
 
 #include "../config.h"
@@ -50,24 +51,34 @@ int installX11(int argc, char *argv[]) {
   string       input;
 
   xml   = new XML(working_dir + SETUP_FILE);
-  files = new File();  // Wee need an object for file operations
+  files = new File();  // We need an object for file operations
 
   InstMain setup;
   if (!setup.Init(argc, argv)) {
     cout << "...falling back onto console." << endl;
+    delete xml;
+	  delete files;
+
     return 0;
   }
 
   // A little gossip...
   Welcome welcome(xml, working_dir);
-  if (welcome.run() != RESPONSE_OK)
+  if (welcome.run() != RESPONSE_OK) {
+    delete xml;
+	  delete files;
+
     return 1;
+  }
   welcome.hide();
 
   // Show license...
   if (xml->GetLicense() != "") {
     ShowLicense license(xml, working_dir);
     if (license.run() != RESPONSE_OK) {
+      delete xml;
+	    delete files;
+
       return 1;
     }
     license.hide();
@@ -76,6 +87,9 @@ int installX11(int argc, char *argv[]) {
   // Show target directory
   ShowTarget target(xml, working_dir);
   if (target.run() != RESPONSE_OK) {
+    delete xml;
+	  delete files;
+
     return 1;
   }
   target.hide();
@@ -86,7 +100,7 @@ int installX11(int argc, char *argv[]) {
                        " does not exist! Create it now?").c_str(),
                        MESSAGE_QUESTION, BUTTONS_YES_NO);
     switch(msg.run()) {
-      case RESPONSE_YES: files->MkDir(xml->GetTargetDir());; break;
+      case RESPONSE_YES: files->MkDir(xml->GetTargetDir()); break;
       case RESPONSE_NO : return 1; break;
     }
   }
@@ -95,17 +109,43 @@ int installX11(int argc, char *argv[]) {
   GCopy win(xml, working_dir);
 
   if ((win.run() != RESPONSE_OK) || win.isAborted()) {
+    delete xml;
+	  delete files;
+
     return 1;
   }
   win.hide();
 
+  // Asking for linking
+  if (!xml->GetBinaries().empty()) {
+    User *usr = new User(); // We need some information about the user
+    string link_src_dir = (usr->isRoot()) ? "/usr/local/bin/" :
+                                            usr->GetHome()+"/bin/";
+    if ((MessageDialog::MessageDialog("I can create links in " + link_src_dir +
+                                      " Shall I do?",
+		    MESSAGE_QUESTION, BUTTONS_YES_NO)).run() == RESPONSE_YES) {
+      list<string> bins           = xml->GetBinaries();
+      list<string>::iterator iter = bins.begin();
+      while (iter != bins.end()) {
+        files->MkLink(xml->GetTargetDir() + *iter, link_src_dir + *iter);
+        iter++;
+      }
+	  }
+  }
   // Show README...
   if (xml->GetReadme() != "") {
     ShowReadme readme(xml, working_dir);
-    if (readme.run() != RESPONSE_OK)
+    if (readme.run() != RESPONSE_OK) {
+      delete xml;
+	    delete files;
+
       return 1;
+    }
     readme.hide();
 	}
+
+  delete xml;
+  delete files;
 
   return 1;
 }
@@ -120,7 +160,7 @@ int installConsole(int argc, char *argv[]) {
   string       input;
 
   xml   = new XML(working_dir + SETUP_FILE);
-  files = new File();  // Wee need an object for file operations
+  files = new File();  // We need an object for file operations
 
   // A little gossip...
   cout << "==== Welcome to " << PACKAGE_STRING << " ====" << endl << endl;
@@ -150,11 +190,18 @@ int installConsole(int argc, char *argv[]) {
     cout << xml->GetTargetDir() << " does not exist. Create [Y/n]? ";
     getline(cin, input, '\n');
     if ((input == "") || (input[0] == 'y') || (input[0] == 'Y')) {
-      if (files->MkDir(xml->GetTargetDir()))
-        return 0;
-    } else
-      return 1;
+      if (files->MkDir(xml->GetTargetDir())) {
+       delete xml;
+	     delete files;
 
+       return 0;
+			} else {
+        delete xml;
+	      delete files;
+
+        return 1;
+      }
+    }
     cout << endl << endl;
   }
 
@@ -170,6 +217,23 @@ int installConsole(int argc, char *argv[]) {
     iter++;
   }
 
+  // Asking for linking
+  if (!xml->GetBinaries().empty()) {
+    User *usr = new User(); // We need some information about the user
+    string link_src_dir = (usr->isRoot()) ? "/usr/local/bin/" :
+                                            usr->GetHome()+"/bin/";
+    cout << "I can create links in " + link_src_dir + " Shall I do [Y/n]? ";
+    getline(cin, input, '\n');
+    if ((input == "") || (input[0] == 'y') || (input[0] == 'Y')) {
+      list<string> bins           = xml->GetBinaries();
+      list<string>::iterator iter = bins.begin();
+      while (iter != bins.end()) {
+        files->MkLink(xml->GetTargetDir() + *iter, link_src_dir + *iter);
+        iter++;
+      }
+	  }
+  }
+
   // Show README
   if (xml->GetReadme() != "") {
     cout << "Do want to read the README file [Y/n]?";
@@ -180,6 +244,10 @@ int installConsole(int argc, char *argv[]) {
   }
 
   cout << endl << xml->GetProduct() << " is installed!" << endl << endl;
+
+  delete xml;
+  delete files;
+
   return 1;
 }
 
