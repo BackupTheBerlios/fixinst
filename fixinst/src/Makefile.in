@@ -132,6 +132,7 @@ setup_SOURCES = \
 Dialogs.cc \
 File.cc \
 GCopy.cc \
+User.cc \
 XML.cc \
 main.cc
 
@@ -140,6 +141,7 @@ noinst_HEADERS = \
 Dialogs.h \
 File.h \
 GCopy.h \
+User.h \
 XML.h \
 main.h
 
@@ -152,7 +154,7 @@ bin_PROGRAMS = setup$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
 am_setup_OBJECTS = Dialogs.$(OBJEXT) File.$(OBJEXT) GCopy.$(OBJEXT) \
-	XML.$(OBJEXT) main.$(OBJEXT)
+	User.$(OBJEXT) XML.$(OBJEXT) main.$(OBJEXT)
 setup_OBJECTS = $(am_setup_OBJECTS)
 setup_LDADD = $(LDADD)
 setup_DEPENDENCIES =
@@ -162,8 +164,8 @@ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/Dialogs.Po ./$(DEPDIR)/File.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/GCopy.Po ./$(DEPDIR)/XML.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main.Po
+@AMDEP_TRUE@	./$(DEPDIR)/GCopy.Po ./$(DEPDIR)/User.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/XML.Po ./$(DEPDIR)/main.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -175,7 +177,7 @@ CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 DIST_SOURCES = $(setup_SOURCES)
 HEADERS = $(noinst_HEADERS)
 
-DIST_COMMON = README $(noinst_HEADERS) Makefile.am Makefile.in
+DIST_COMMON = $(noinst_HEADERS) Makefile.am Makefile.in
 SOURCES = $(setup_SOURCES)
 
 all: all-am
@@ -229,6 +231,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dialogs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/File.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GCopy.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/User.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
