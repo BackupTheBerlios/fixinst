@@ -14,6 +14,7 @@ CPPFLAGS="$CFLAGS `pkg-config libxml-2.0 --cflags` `pkg-config gtkmm-2.0 --cflag
 
 AC_CHECK_HEADERS([libxml/parser.h])
 AC_CHECK_HEADERS([ncurses.h])
+AC_CHECK_HEADERS([pwd.h])
 
 TLIBS=$LIBS
 
